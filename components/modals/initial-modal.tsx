@@ -16,6 +16,8 @@ import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {useEffect, useState} from "react";
 import FileUpload from "@/components/file-upload";
+import axios from "axios";
+import {useRouter} from "next/navigation";
 
 type Props = {
 
@@ -25,12 +27,14 @@ const _formSchema = z.object({
     name: z.string().min(1, {
         message: 'Name is required'
     }),
-    image: z.string().min(1, {
+    imageUrl: z.string().min(1, {
         message: 'Server image is required'
     })
 })
 const InitalModal = (props: Props) => {
     const [isMounted, setIsMounted] = useState(false)
+
+    const router = useRouter()
 
     useEffect(() => {
         setIsMounted(true)
@@ -40,7 +44,7 @@ const InitalModal = (props: Props) => {
         resolver: zodResolver(_formSchema),
         defaultValues: {
             name: '',
-            image: ''
+            imageUrl: ''
         }
     })
 
@@ -48,7 +52,15 @@ const InitalModal = (props: Props) => {
     const isLoading = form.formState.isSubmitting
 
     const onSubmit = async (values: z.infer<typeof _formSchema>)=> {
-        console.log(values)
+        try {
+            await axios.post('/api/servers', values)
+
+            form.reset();
+            router.refresh();
+            window.location.reload();
+        } catch (e) {
+            console.error(e)
+        }
     }
 
 
@@ -73,7 +85,7 @@ const InitalModal = (props: Props) => {
                                     <FormItem>
                                         <FormControl><FileUpload endpoint='serverImage' value={field.value} onChange={field.onChange} /></FormControl>
                                     </FormItem>
-                                )} name='image' control={form.control} />
+                                )} name='imageUrl' control={form.control} />
                             </div>
                             <FormField render={({field}) => <FormItem>
                                 <FormLabel className='uppercase text-xs font-bold text-zinc-500 dark:text-secondary/70'>Server name</FormLabel>

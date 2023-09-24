@@ -11,7 +11,7 @@ const SetupPage = async (props: Props) => {
 
     const server = await db.server.findFirst({
         where: {
-            Member: {
+            members: {
                 some: {
                     profileId: prfile.id
                 }
